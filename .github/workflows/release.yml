@@ -13,18 +13,19 @@ permissions:
 
 jobs:
      release:
+          name: Release
           runs-on: ubuntu-latest
           steps:
                - name: Checkout
                  uses: actions/checkout@v4
                  with:
-                      fetch-depth: 0
+                      fetch-depth: 0 # required for semantic-release to analyze commits
 
-               - name: Use Node.js
+               - name: Setup Node.js
                  uses: actions/setup-node@v4
                  with:
-                      node-version: 20
-                      registry-url: https://registry.npmjs.org
+                      node-version: "lts/*"
+                      registry-url: "https://registry.npmjs.org"
 
                - name: Install
                  run: npm ci
