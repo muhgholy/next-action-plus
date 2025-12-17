@@ -9,7 +9,7 @@ on:
                ref:
                     description: 'Git ref to publish (tag/branch/sha)'
                     required: true
-                    default: 'v1.0.0'
+                    default: 'main'
 
 permissions:
      contents: write
@@ -56,32 +56,32 @@ jobs:
                            @semantic-release/changelog
                            @semantic-release/exec
 
-           publish:
-                         name: Publish
-                         if: github.event_name == 'workflow_dispatch'
-                         runs-on: ubuntu-latest
-                         steps:
-                                    - name: Checkout
-                                         uses: actions/checkout@v4
-                                         with:
-                                                       ref: ${{ inputs.ref }}
+     publish:
+          name: Publish
+          if: github.event_name == 'workflow_dispatch'
+          runs-on: ubuntu-latest
+          steps:
+               - name: Checkout
+                 uses: actions/checkout@v4
+                 with:
+                      ref: ${{ inputs.ref }}
 
-                                    - name: Setup Node.js
-                                         uses: actions/setup-node@v4
-                                         with:
-                                                       node-version: 'lts/*'
-                                                       registry-url: 'https://registry.npmjs.org'
+               - name: Setup Node.js
+                 uses: actions/setup-node@v4
+                 with:
+                      node-version: 'lts/*'
+                      registry-url: 'https://registry.npmjs.org'
 
-                                    - name: Install
-                                         run: npm ci
+               - name: Install
+                 run: npm ci
 
-                                    - name: Test
-                                         run: npm test
+               - name: Test
+                 run: npm test
 
-                                    - name: Build
-                                         run: npm run build
+               - name: Build
+                 run: npm run build
 
-                                    - name: Publish
-                                         env:
-                                                       NPM_CONFIG_PROVENANCE: true
-                                         run: npm publish --provenance --access public
+               - name: Publish
+                 env:
+                      NPM_CONFIG_PROVENANCE: true
+                 run: npm publish --provenance --access public
