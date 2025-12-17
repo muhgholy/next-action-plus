@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/muhgholy/next-action-plus/compare/v1.0.0...v1.0.1) (2025-12-17)
+
+
+### Bug Fixes
+
+* trigger release ([ac754a2](https://github.com/muhgholy/next-action-plus/commit/ac754a287c4fa5b1d17b8b8b10cfc8ac90ee2cad))
+
 # 1.0.0 (2025-12-17)
 
 
