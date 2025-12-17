@@ -1,0 +1,43 @@
+name: Release
+
+on:
+     push:
+          branches:
+               - main
+
+permissions:
+     contents: write
+     issues: write
+     pull-requests: write
+
+jobs:
+     release:
+          runs-on: ubuntu-latest
+          steps:
+               - name: Checkout
+                 uses: actions/checkout@v4
+                 with:
+                      fetch-depth: 0
+
+               - name: Use Node.js
+                 uses: actions/setup-node@v4
+                 with:
+                      node-version: 20
+                      registry-url: https://registry.npmjs.org
+
+               - name: Install
+                 run: npm ci
+
+               - name: Test
+                 run: npm test
+
+               - name: Build
+                 run: npm run build
+
+               - name: Semantic Release
+                 env:
+                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                      # @semantic-release/npm expects NPM_TOKEN.
+                      # Accept either secret name to avoid coupling local/CI naming.
+                      NPM_TOKEN: ${{ secrets.NPM_TOKEN || secrets.NODE_AUTH_TOKEN }}
+                 run: npx semantic-release

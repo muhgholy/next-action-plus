@@ -1,0 +1,13 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="24" y="24" width="1152" height="312" rx="32" fill="#0B1220"/>
+  <path d="M96 180C96 132.399 134.399 94 182 94H302C349.601 94 388 132.399 388 180C388 227.601 349.601 266 302 266H182C134.399 266 96 227.601 96 180Z" fill="#111C33"/>
+  <path d="M150 180C150 162.327 164.327 148 182 148H302C319.673 148 334 162.327 334 180C334 197.673 319.673 212 302 212H182C164.327 212 150 197.673 150 180Z" fill="#1A2B55"/>
+  <path d="M208 154L240 180L208 206" stroke="#E6EAF2" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M274 154L242 180L274 206" stroke="#E6EAF2" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="420" y="160" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" font-size="54" font-weight="700" fill="#E6EAF2">next-action-plus</text>
+  <text x="420" y="214" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" font-size="24" font-weight="500" fill="#A9B4D0">Native-feeling server actions. Type-safe input. Zero ceremony.</text>
+
+  <path d="M420 254H1080" stroke="#1A2B55" stroke-width="2"/>
+  <text x="420" y="292" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" font-size="18" fill="#A9B4D0">Schema-agnostic • Zod compatible • Standard Schema v1 • FormData + File</text>
+</svg>
