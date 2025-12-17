@@ -1,31 +1,31 @@
-export type TSafeActionIssuePathSegment = string | number;
+export type TActionPlusIssuePathSegment = string | number;
 
-export type TSafeActionIssue = {
-	path: TSafeActionIssuePathSegment[];
+export type TActionPlusIssue = {
+	path: TActionPlusIssuePathSegment[];
 	message: string;
 	raw?: unknown;
 };
 
-export type TSafeActionErrorCode = 'VALIDATION_ERROR' | 'MIDDLEWARE_ERROR' | 'HANDLER_ERROR' | 'ACTION_ERROR';
+export type TActionPlusErrorCode = 'VALIDATION_ERROR' | 'MIDDLEWARE_ERROR' | 'HANDLER_ERROR' | 'ACTION_ERROR';
 
-export type TSafeActionErrorPhase = 'validation' | 'middleware' | 'handler';
+export type TActionPlusErrorPhase = 'validation' | 'middleware' | 'handler';
 
-export type TSafeActionUnknownErrorContext = {
-	phase: TSafeActionErrorPhase;
+export type TActionPlusUnknownErrorContext = {
+	phase: TActionPlusErrorPhase;
 	error: unknown;
 	input?: unknown;
 	parsedInput?: unknown;
 	ctx?: Record<string, unknown>;
 };
 
-export type TSafeActionValidationErrorContext = TSafeActionUnknownErrorContext & {
+export type TActionPlusValidationErrorContext = TActionPlusUnknownErrorContext & {
 	message: string;
-	issues: TSafeActionIssue[];
+	issues: TActionPlusIssue[];
 };
 
-export type TSafeActionErrorContext = TSafeActionUnknownErrorContext | TSafeActionValidationErrorContext;
+export type TActionPlusErrorContext = TActionPlusUnknownErrorContext | TActionPlusValidationErrorContext;
 
-export type TSafeActionClientOptions = {
+export type TActionPlusOptions = {
 	/**
 	 * Control logging when an action throws.
 	 * - `false` disables logging.
@@ -36,19 +36,19 @@ export type TSafeActionClientOptions = {
 	/**
 	 * Hook called whenever an action throws (validation, middleware, or handler).
 	 */
-	onError?: (ctx: TSafeActionErrorContext) => void;
+	onError?: (ctx: TActionPlusErrorContext) => void;
 
 	/**
 	 * Customize the thrown error when validation fails.
 	 * The returned Error will be thrown.
 	 */
-	formatValidationError?: (ctx: TSafeActionValidationErrorContext) => Error;
+	formatValidationError?: (ctx: TActionPlusValidationErrorContext) => Error;
 
 	/**
 	 * Customize the thrown error for non-validation failures.
 	 * If omitted, the original error is re-thrown.
 	 */
-	formatError?: (ctx: TSafeActionUnknownErrorContext) => Error;
+	formatError?: (ctx: TActionPlusUnknownErrorContext) => Error;
 
 	/**
 	 * When enabled, include `input`, `parsedInput`, and `ctx` in error details.
@@ -57,23 +57,23 @@ export type TSafeActionClientOptions = {
 	includeInputInErrorDetails?: boolean;
 };
 
-export class SafeActionError extends Error {
-	code: TSafeActionErrorCode;
-	phase?: TSafeActionErrorPhase;
+export class ActionPlusError extends Error {
+	code: TActionPlusErrorCode;
+	phase?: TActionPlusErrorPhase;
 	data?: unknown;
 	declare cause?: unknown;
 
 	constructor(
 		message: string,
 		opts: {
-			code: TSafeActionErrorCode;
-			phase?: TSafeActionErrorPhase;
+			code: TActionPlusErrorCode;
+			phase?: TActionPlusErrorPhase;
 			cause?: unknown;
 			data?: unknown;
 		} = { code: 'ACTION_ERROR' },
 	) {
 		super(message, { cause: opts.cause });
-		this.name = 'SafeActionError';
+		this.name = 'ActionPlusError';
 		this.code = opts.code;
 		this.phase = opts.phase;
 		this.data = opts.data;
@@ -81,31 +81,31 @@ export class SafeActionError extends Error {
 	}
 }
 
-export class SafeActionValidationError extends SafeActionError {
-	issues: TSafeActionIssue[];
+export class ActionPlusValidationError extends ActionPlusError {
+	issues: TActionPlusIssue[];
 
 	constructor(
 		message: string,
 		opts: {
-			issues: TSafeActionIssue[];
-			phase?: TSafeActionErrorPhase;
+			issues: TActionPlusIssue[];
+			phase?: TActionPlusErrorPhase;
 			cause?: unknown;
 			data?: unknown;
 		},
 	) {
 		super(message, { code: 'VALIDATION_ERROR', phase: opts.phase, cause: opts.cause, data: opts.data });
-		this.name = 'SafeActionValidationError';
+		this.name = 'ActionPlusValidationError';
 		this.issues = opts.issues;
 	}
 }
 
-export const isSafeActionError = (error: unknown): error is SafeActionError => {
+export const isActionPlusError = (error: unknown): error is ActionPlusError => {
 	if (typeof error !== 'object' || error === null) return false;
 	if (!('code' in error)) return false;
 	const name = (error as { name?: unknown }).name;
-	return name === 'SafeActionError' || name === 'SafeActionValidationError';
+	return name === 'ActionPlusError' || name === 'ActionPlusValidationError';
 };
 
-export const isSafeActionValidationError = (error: unknown): error is SafeActionValidationError => {
-	return typeof error === 'object' && error !== null && 'issues' in error && (error as { name?: unknown }).name === 'SafeActionValidationError';
+export const isActionPlusValidationError = (error: unknown): error is ActionPlusValidationError => {
+	return typeof error === 'object' && error !== null && 'issues' in error && (error as { name?: unknown }).name === 'ActionPlusValidationError';
 };

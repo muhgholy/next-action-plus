@@ -1,11 +1,11 @@
 import type { TSchema, TStandardSchemaV1 } from '../src/types';
-import { createSafeActionClient } from '../src/index';
+import { createActionPlus } from '../src/index';
 import { assertType, expectTypeOf, test } from 'vitest';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
 test('Zod schema inference', () => {
-	const action = createSafeActionClient()
+	const action = createActionPlus()
 		.schema(z.object({ name: z.string(), age: z.number() }))
 		.action(async ({ parsedInput, ctx }) => {
 			expectTypeOf(parsedInput).toEqualTypeOf<{ name: string; age: number }>();
@@ -21,7 +21,7 @@ test('Generic sync schema inference', () => {
 		parse: (_: unknown) => ({ a: 'a' as const }),
 	};
 
-	const action = createSafeActionClient()
+	const action = createActionPlus()
 		.schema(schema)
 		.action(async ({ parsedInput }) => {
 			expectTypeOf(parsedInput).toEqualTypeOf<{ a: 'a' }>();
@@ -36,7 +36,7 @@ test('Generic async schema inference', () => {
 		parseAsync: async (_: unknown) => ({ b: 123 as const }),
 	};
 
-	const action = createSafeActionClient()
+	const action = createActionPlus()
 		.schema(schema)
 		.action(async ({ parsedInput }) => {
 			expectTypeOf(parsedInput).toEqualTypeOf<{ b: 123 }>();
@@ -64,7 +64,7 @@ test('Standard Schema inference', () => {
 		},
 	};
 
-	const action = createSafeActionClient()
+	const action = createActionPlus()
 		.schema(stdSchema)
 		.action(async ({ parsedInput }) => {
 			expectTypeOf(parsedInput).toEqualTypeOf<{ name: string; upper: string }>();
@@ -78,7 +78,7 @@ test('FormData input inference for ZodEffects (typed like zod-form-data)', () =>
 	type ZodFD = z.ZodEffects<z.ZodObject<{ name: z.ZodString }>, { name: string }, FormData | { name: string }>;
 	const fdSchema = z.preprocess(() => undefined, z.object({ name: z.string() })) as unknown as ZodFD;
 
-	const action = createSafeActionClient()
+	const action = createActionPlus()
 		.schema(fdSchema)
 		.action(async ({ parsedInput }) => {
 			expectTypeOf(parsedInput).toEqualTypeOf<{ name: string }>();
@@ -93,7 +93,7 @@ test('FormData input inference for real zod-form-data', () => {
 		name: zfd.text(),
 	});
 
-	const action = createSafeActionClient()
+	const action = createActionPlus()
 		.schema(schema)
 		.action(async ({ parsedInput }) => {
 			expectTypeOf(parsedInput).toEqualTypeOf<{ name: string }>();
@@ -110,7 +110,7 @@ test('FormData + File inference for real zod-form-data', () => {
 		upload: zfd.file(),
 	});
 
-	createSafeActionClient()
+	createActionPlus()
 		.schema(schema)
 		.action(async ({ parsedInput }) => {
 			expectTypeOf(parsedInput.upload).toEqualTypeOf<File>();
@@ -122,7 +122,7 @@ test('Schema chaining => intersection output', () => {
 	const aSchema = { parse: (_: unknown) => ({ a: 'x' as const }) };
 	const bSchema = { parse: (_: unknown) => ({ b: 1 as const }) };
 
-	const action = createSafeActionClient()
+	const action = createActionPlus()
 		.schema(aSchema)
 		.schema(bSchema)
 		.action(async ({ parsedInput }) => {
@@ -154,8 +154,8 @@ test('TSchema accepts all supported shapes', () => {
 	assertType<TSchema[]>(schemas);
 });
 
-test('createSafeActionClient options are typed', () => {
-	createSafeActionClient({
+test('createActionPlus options are typed', () => {
+	createActionPlus({
 		logger: false,
 		includeInputInErrorDetails: true,
 		formatValidationError: ({ message, issues }) => {

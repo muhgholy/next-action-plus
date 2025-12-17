@@ -2,8 +2,8 @@ export type { TMiddlewareFn } from './middleware';
 
 export type { TIfInstalled, TIsAny, TPrettify, TUnionToIntersection } from './utils';
 
-export type { TSafeActionClientOptions, TSafeActionErrorCode, TSafeActionErrorContext, TSafeActionErrorPhase, TSafeActionIssue, TSafeActionIssuePathSegment, TSafeActionUnknownErrorContext, TSafeActionValidationErrorContext } from './errors';
-export { SafeActionError, SafeActionValidationError, isSafeActionError, isSafeActionValidationError } from './errors';
+export type { TActionPlusOptions, TActionPlusErrorCode, TActionPlusErrorContext, TActionPlusErrorPhase, TActionPlusIssue, TActionPlusIssuePathSegment, TActionPlusUnknownErrorContext, TActionPlusValidationErrorContext } from './errors';
+export { ActionPlusError, ActionPlusValidationError, isActionPlusError, isActionPlusValidationError } from './errors';
 
 export type { TGenericSchema, TGenericSchemaAsync } from './schema/generic';
 export type { TSchema, TSchemaAvailable, TInfer, TInferIn, TInferArray, TInferInArray, TIsFormData, TFormDataInput, TFormDataCompatibleInput } from './schema';

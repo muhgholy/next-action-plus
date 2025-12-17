@@ -1,13 +1,13 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { SafeActionValidationError, createSafeActionClient } from '../src/index';
+import { ActionPlusValidationError, createActionPlus } from '../src/index';
 import type { TStandardSchemaV1 } from '../src/types';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
 describe('runtime', () => {
 	test('zod schema: parses object input', async () => {
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(z.object({ name: z.string() }))
 			.action(async ({ parsedInput }) => {
 				return { ok: true, name: parsedInput.name };
@@ -17,7 +17,7 @@ describe('runtime', () => {
 	});
 
 	test('zod schema: validation failure throws formatted Error (message + cause)', async () => {
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(z.object({ name: z.string().min(2) }))
 			.action(async ({ parsedInput }) => {
 				return { ok: true, name: parsedInput.name };
@@ -28,22 +28,22 @@ describe('runtime', () => {
 			await action({ name: 'A' });
 			throw new Error('Expected action to throw');
 		} catch (err: unknown) {
-			expect(err).toBeInstanceOf(SafeActionValidationError);
+			expect(err).toBeInstanceOf(ActionPlusValidationError);
 			expect((err as Error).message).toMatch(/^Input \(name\) is error: /);
 			expect((err as { cause?: unknown }).cause).toBeInstanceOf(z.ZodError);
-			expect((err as SafeActionValidationError).issues.length).toBeGreaterThan(0);
-			expect((err as SafeActionValidationError).code).toBe('VALIDATION_ERROR');
+			expect((err as ActionPlusValidationError).issues.length).toBeGreaterThan(0);
+			expect((err as ActionPlusValidationError).code).toBe('VALIDATION_ERROR');
 		} finally {
 			spy.mockRestore();
 		}
 	});
 
 	test('options: logger=false disables console.error logging', async () => {
-		const client = createSafeActionClient({ logger: false });
+		const client = createActionPlus({ logger: false });
 		const action = client.schema(z.object({ name: z.string().min(2) })).action(async ({ parsedInput }) => parsedInput.name);
 
 		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-		await expect(action({ name: 'A' })).rejects.toBeInstanceOf(SafeActionValidationError);
+		await expect(action({ name: 'A' })).rejects.toBeInstanceOf(ActionPlusValidationError);
 		expect(spy).not.toHaveBeenCalled();
 		spy.mockRestore();
 	});
@@ -58,7 +58,7 @@ describe('runtime', () => {
 			}
 		}
 
-		const client = createSafeActionClient({
+		const client = createActionPlus({
 			logger: false,
 			formatValidationError: ({ message, issues, error }) => {
 				const e = new MyValidationError(message, { issues, cause: error });
@@ -82,7 +82,7 @@ describe('runtime', () => {
 			},
 		};
 
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(schema)
 			.action(async ({ parsedInput }) => parsedInput);
 
@@ -96,7 +96,7 @@ describe('runtime', () => {
 			},
 		};
 
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(schema)
 			.action(async ({ parsedInput }) => parsedInput);
 
@@ -139,7 +139,7 @@ describe('runtime', () => {
 			},
 		};
 
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(standardSchema)
 			.action(async ({ parsedInput }) => ({ ok: true, name: parsedInput.name }));
 
@@ -153,7 +153,7 @@ describe('runtime', () => {
 		const s1 = { parse: (_: unknown) => ({ a: 'a' }) };
 		const s2 = { parse: (_: unknown) => ({ b: 2 }) };
 
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(s1)
 			.schema(s2)
 			.action(async ({ parsedInput }) => parsedInput);
@@ -162,7 +162,7 @@ describe('runtime', () => {
 	});
 
 	test('multiple schemas validate against same base input (zod)', async () => {
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(z.object({ foo: z.string() }))
 			.schema(z.object({ bar: z.number() }))
 			.action(async ({ parsedInput }) => parsedInput);
@@ -181,7 +181,7 @@ describe('runtime', () => {
 			z.object({ name: z.string() }),
 		) as unknown as ZodFD;
 
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(fdSchema)
 			.action(async ({ parsedInput }) => parsedInput.name);
 
@@ -196,7 +196,7 @@ describe('runtime', () => {
 			name: zfd.text(),
 		});
 
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(schema)
 			.action(async ({ parsedInput }) => parsedInput.name);
 
@@ -211,7 +211,7 @@ describe('runtime', () => {
 			upload: zfd.file(),
 		});
 
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(schema)
 			.action(async ({ parsedInput }) => {
 				return {
@@ -253,7 +253,7 @@ describe('runtime', () => {
 			},
 		};
 
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.schema(schema)
 			.action(async ({ parsedInput }) => parsedInput.name);
 
@@ -264,7 +264,7 @@ describe('runtime', () => {
 	});
 
 	test('middleware: ctx is extended through chain', async () => {
-		const action = createSafeActionClient()
+		const action = createActionPlus()
 			.use(async ({ next }) => next({ ctx: { a: 'x' } }))
 			.use(async ({ ctx, next }) => {
 				expect(ctx.a).toBe('x');

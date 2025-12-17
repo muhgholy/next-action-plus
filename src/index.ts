@@ -1,25 +1,25 @@
-import type { TSafeActionClientOptions, TSafeActionErrorPhase, TSafeActionIssue, TFormDataCompatibleInput, TFormDataInput, TInfer, TPrettify, TSchema, TMiddlewareFn, TUnionToIntersection } from './types';
-import { SafeActionValidationError } from './types';
+import type { TActionPlusOptions, TActionPlusErrorPhase, TActionPlusIssue, TFormDataCompatibleInput, TFormDataInput, TInfer, TPrettify, TSchema, TMiddlewareFn, TUnionToIntersection } from './types';
+import { ActionPlusValidationError } from './types';
 
 export { schemaAvailable } from './types';
-export { SafeActionError, SafeActionValidationError, isSafeActionError, isSafeActionValidationError } from './types';
+export { ActionPlusError, ActionPlusValidationError, isActionPlusError, isActionPlusValidationError } from './types';
 export type * from './types';
 
 /**
- * Class that handles safe server actions with validation
+ * Class that handles server actions with validation
  */
-export class SafeActionClient<Schemas extends TSchema[] = [], Ctx extends Record<string, unknown> = Record<string, never>, Middlewares extends readonly TMiddlewareFn<any, any>[] = []> {
+export class ActionPlus<Schemas extends TSchema[] = [], Ctx extends Record<string, unknown> = Record<string, never>, Middlewares extends readonly TMiddlewareFn<any, any>[] = []> {
 	private schemas: Schemas;
 	private middlewares: Middlewares;
 	private ctx: Ctx;
-	private options: TSafeActionClientOptions;
+	private options: TActionPlusOptions;
 
 	constructor(
 		options: {
 			schemas?: Schemas;
 			middlewares?: Middlewares;
 			ctx?: Ctx;
-			options?: TSafeActionClientOptions;
+			options?: TActionPlusOptions;
 		} = {},
 	) {
 		this.schemas = (options.schemas || []) as unknown as Schemas;
@@ -32,8 +32,8 @@ export class SafeActionClient<Schemas extends TSchema[] = [], Ctx extends Record
 	 * Adds a validation schema
 	 * @param schema Validation schema
 	 */
-	schema<S extends TSchema>(schema: S): SafeActionClient<[...Schemas, S], Ctx, Middlewares> {
-		return new SafeActionClient({
+	schema<S extends TSchema>(schema: S): ActionPlus<[...Schemas, S], Ctx, Middlewares> {
+		return new ActionPlus({
 			schemas: [...this.schemas, schema] as unknown as [...Schemas, S],
 			middlewares: this.middlewares,
 			ctx: this.ctx,
@@ -45,8 +45,8 @@ export class SafeActionClient<Schemas extends TSchema[] = [], Ctx extends Record
 	 * Adds a middleware function
 	 * @param middleware Middleware function
 	 */
-	use<NextCtx extends Record<string, unknown>>(middleware: TMiddlewareFn<Ctx, NextCtx>): SafeActionClient<Schemas, Ctx & NextCtx, [...Middlewares, TMiddlewareFn<Ctx, NextCtx>]> {
-		return new SafeActionClient({
+	use<NextCtx extends Record<string, unknown>>(middleware: TMiddlewareFn<Ctx, NextCtx>): ActionPlus<Schemas, Ctx & NextCtx, [...Middlewares, TMiddlewareFn<Ctx, NextCtx>]> {
+		return new ActionPlus({
 			schemas: this.schemas,
 			middlewares: [...this.middlewares, middleware] as unknown as [...Middlewares, TMiddlewareFn<Ctx, NextCtx>],
 			ctx: this.ctx as unknown as Ctx & NextCtx,
@@ -60,7 +60,7 @@ export class SafeActionClient<Schemas extends TSchema[] = [], Ctx extends Record
 	 */
 	action<Output>(handler: (props: { parsedInput: Schemas extends (infer S extends TSchema)[] ? TPrettify<TUnionToIntersection<TInfer<S>>> : Record<string, never>; ctx: TPrettify<Ctx> }) => Promise<Output>): (input?: Schemas extends [infer S extends TSchema] ? TFormDataInput<S> : Schemas extends (infer _S extends TSchema)[] ? TFormDataCompatibleInput<Schemas> : unknown) => Promise<Output> {
 		return async (input?: unknown): Promise<Output> => {
-			let phase: TSafeActionErrorPhase = 'validation';
+			let phase: TActionPlusErrorPhase = 'validation';
 			let parsedInputForErrors: unknown = undefined;
 			let ctxForErrors: unknown = undefined;
 
@@ -102,7 +102,7 @@ export class SafeActionClient<Schemas extends TSchema[] = [], Ctx extends Record
 
 					const formatted =
 						this.options.formatValidationError?.(validationContext) ??
-						new SafeActionValidationError(message, {
+						new ActionPlusValidationError(message, {
 							issues,
 							phase,
 							cause: error,
@@ -134,7 +134,7 @@ export class SafeActionClient<Schemas extends TSchema[] = [], Ctx extends Record
 		});
 	}
 
-	private normalizeIssues(error: unknown): TSafeActionIssue[] {
+	private normalizeIssues(error: unknown): TActionPlusIssue[] {
 		if (typeof error !== 'object' || error === null) return [];
 
 		const maybe = error as {
@@ -150,7 +150,7 @@ export class SafeActionClient<Schemas extends TSchema[] = [], Ctx extends Record
 		}));
 	}
 
-	private formatValidationErrorParts(error: unknown): { message: string; issues: TSafeActionIssue[] } {
+	private formatValidationErrorParts(error: unknown): { message: string; issues: TActionPlusIssue[] } {
 		const issues = this.normalizeIssues(error);
 		const first = issues[0];
 		if (!first) {
@@ -329,8 +329,8 @@ export class SafeActionClient<Schemas extends TSchema[] = [], Ctx extends Record
 }
 
 /**
- * Creates a safe action client that handles validation and execution of server actions
+ * Creates an ActionPlus client that handles validation and execution of server actions
  */
-export const createSafeActionClient = (options?: TSafeActionClientOptions) => {
-	return new SafeActionClient({ options });
+export const createActionPlus = (options?: TActionPlusOptions) => {
+	return new ActionPlus({ options });
 };

@@ -54,10 +54,10 @@ npm i zod
 ## Quick start
 
 ```ts
-import { createSafeActionClient } from 'next-action-plus';
+import { createActionPlus } from 'next-action-plus';
 import { z } from 'zod';
 
-export const sayHello = createSafeActionClient()
+export const sayHello = createActionPlus()
 	.schema(z.object({ name: z.string().min(1) }))
 	.action(async ({ parsedInput }) => {
 		return { message: `Hello ${parsedInput.name}` };
@@ -83,7 +83,7 @@ Input (name) is error: String must contain at least 1 character(s)
 Notes:
 
 - Only the **first** validation issue is used to build the message.
-- The thrown error is a `SafeActionValidationError` (extends `Error`) with a developer-friendly payload.
+- The thrown error is an `ActionPlusValidationError` (extends `Error`) with a developer-friendly payload.
 - The original validator error is preserved on `error.cause`.
 - Normalized issues are available on `error.issues`.
 
@@ -92,20 +92,20 @@ try {
 	await sayHello({ name: '' });
 } catch (error) {
 	// error.message => "Input (name) is error: ..."
-	// (error as SafeActionValidationError).code   => "VALIDATION_ERROR"
-	// (error as SafeActionValidationError).issues => [{ path, message, raw }]
+	// (error as ActionPlusValidationError).code   => "VALIDATION_ERROR"
+	// (error as ActionPlusValidationError).issues => [{ path, message, raw }]
 	// (error as any).cause => original validator error (e.g. ZodError)
 }
 ```
 
 ### Customizing errors (options)
 
-`createSafeActionClient` accepts options to control logging and customize thrown errors.
+`createActionPlus` accepts options to control logging and customize thrown errors.
 
 ```ts
-import { createSafeActionClient } from 'next-action-plus';
+import { createActionPlus } from 'next-action-plus';
 
-export const client = createSafeActionClient({
+export const client = createActionPlus({
 	logger: false,
 	formatValidationError: ({ message, issues, error }) => {
 		const e = new Error(message);
@@ -129,18 +129,16 @@ This keeps the native Server Action feel.
 
 ```ts
 import 'server-only';
-import { createSafeActionClient } from 'next-action-plus';
+import { createActionPlus } from 'next-action-plus';
 import { z } from 'zod';
 
-export const updateProfile = createSafeActionClient()
+export const updateProfile = createActionPlus()
 	.schema(z.object({ displayName: z.string().min(2) }))
 	.action(async ({ parsedInput }) => {
 		// parsedInput.displayName is string
 		return { ok: true };
 	});
 ```
-
-More: [examples/nextjs-server-action.ts](https://github.com/muhgholy/next-action-plus/blob/main/examples/nextjs-server-action.ts)
 
 ### Client Component usage
 
@@ -178,10 +176,7 @@ export function SayHelloClient() {
 }
 ```
 
-More:
-
-- [examples/nextjs-server-action-for-client.ts](https://github.com/muhgholy/next-action-plus/blob/main/examples/nextjs-server-action-for-client.ts)
-- [examples/nextjs-client-component.tsx](https://github.com/muhgholy/next-action-plus/blob/main/examples/nextjs-client-component.tsx)
+The snippets above are the full examples.
 
 ### FormData + File uploads
 
@@ -190,10 +185,10 @@ Works with `FormData` and `File` using `zod-form-data`.
 If you chain multiple schemas and the input is a `FormData`, next-action-plus will first try to find a schema that can parse the `FormData` into a plain object, then validate the remaining schemas against that object.
 
 ```ts
-import { createSafeActionClient } from 'next-action-plus';
+import { createActionPlus } from 'next-action-plus';
 import { zfd } from 'zod-form-data';
 
-export const uploadAvatar = createSafeActionClient()
+export const uploadAvatar = createActionPlus()
 	.schema(
 		zfd.formData({
 			avatar: zfd.file(),
@@ -212,10 +207,10 @@ Add data to context in a type-safe way.
 Validation runs first, then middleware runs, then your handler runs.
 
 ```ts
-import { createSafeActionClient } from 'next-action-plus';
+import { createActionPlus } from 'next-action-plus';
 import { z } from 'zod';
 
-const client = createSafeActionClient().use(async ({ next }) => next({ ctx: { userId: 'u_123' } }));
+const client = createActionPlus().use(async ({ next }) => next({ ctx: { userId: 'u_123' } }));
 
 export const deletePost = client.schema(z.object({ postId: z.string() })).action(async ({ parsedInput, ctx }) => {
 	// ctx.userId is string
@@ -241,12 +236,12 @@ If you already have a schema system, you can plug it in.
 You can chain multiple schemas. If they return objects, outputs are merged.
 
 ```ts
-import { createSafeActionClient } from 'next-action-plus';
+import { createActionPlus } from 'next-action-plus';
 
 const s1 = { parse: (_: unknown) => ({ a: 'a' }) };
 const s2 = { parse: (_: unknown) => ({ b: 2 }) };
 
-export const demo = createSafeActionClient()
+export const demo = createActionPlus()
 	.schema(s1)
 	.schema(s2)
 	.action(async ({ parsedInput }) => {
@@ -263,7 +258,7 @@ No. It is built for the Server Actions style, but it runs in any Node 20+ runtim
 
 ### Do I need to learn a new pattern?
 
-No. The API is intentionally small: `createSafeActionClient() → .schema() → .use() → .action()`.
+No. The API is intentionally small: `createActionPlus() → .schema() → .use() → .action()`.
 
 ### Can I validate `FormData`?
 
