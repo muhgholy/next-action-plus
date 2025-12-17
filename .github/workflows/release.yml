@@ -24,8 +24,8 @@ jobs:
                - name: Setup Node.js
                  uses: actions/setup-node@v4
                  with:
-                      node-version: "lts/*"
-                      registry-url: "https://registry.npmjs.org"
+                      node-version: 'lts/*'
+                      registry-url: 'https://registry.npmjs.org'
 
                - name: Install
                  run: npm ci
@@ -37,9 +37,14 @@ jobs:
                  run: npm run build
 
                - name: Semantic Release
+                 uses: cycjimmy/semantic-release-action@v4
                  env:
                       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                       # Enable npm provenance + trusted publishing (OIDC).
                       NPM_CONFIG_PROVENANCE: true
-                 run: npx semantic-release
+                 with:
+                      extra_plugins: |
+                           @semantic-release/git
+                           @semantic-release/changelog
+                           @semantic-release/exec
