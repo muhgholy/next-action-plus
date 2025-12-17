@@ -18,7 +18,13 @@
                     "npmPublish": true
                }
           ],
-          "@semantic-release/github",
+          [
+               "@semantic-release/github",
+               {
+                    "failComment": false,
+                    "failTitle": false
+               }
+          ],
           [
                "@semantic-release/git",
                {
