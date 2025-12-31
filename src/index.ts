@@ -138,16 +138,20 @@ export class ActionPlus<Schemas extends TSchema[] = [], Ctx extends Record<strin
 		if (typeof error !== 'object' || error === null) return [];
 
 		const maybe = error as {
-			errors?: Array<{ path?: unknown; message?: unknown }>;
-			issues?: Array<{ path?: unknown; message?: unknown }>;
+			errors?: unknown;
+			issues?: unknown;
 		};
 
-		const rawIssues = (maybe.errors ?? maybe.issues ?? []) as Array<{ path?: unknown; message?: unknown }>;
-		return rawIssues.map(issue => ({
-			path: this.normalizeIssuePath(issue.path),
-			message: typeof issue.message === 'string' ? issue.message : String(issue.message ?? ''),
-			raw: issue,
-		}));
+		const errorsCandidate = maybe.errors;
+		const issuesCandidate = maybe.issues;
+		const rawIssues = (Array.isArray(errorsCandidate) ? errorsCandidate : Array.isArray(issuesCandidate) ? issuesCandidate : []) as unknown[];
+		return rawIssues
+			.filter((issue): issue is Record<string, unknown> => typeof issue === 'object' && issue !== null)
+			.map(issue => ({
+				path: this.normalizeIssuePath(issue.path),
+				message: typeof issue.message === 'string' ? issue.message : String(issue.message ?? ''),
+				raw: issue,
+			}));
 	}
 
 	private formatValidationErrorParts(error: unknown): { message: string; issues: TActionPlusIssue[] } {
