@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/muhgholy/next-action-plus/compare/v1.0.1...v1.0.2) (2025-12-31)
+
+
+### Bug Fixes
+
+* handle non-array errors/issues in normalizeIssues to prevent runtime TypeError ([767efba](https://github.com/muhgholy/next-action-plus/commit/767efbaaafc01407319fd21b157b2198875deae1))
+
 ## [1.0.1](https://github.com/muhgholy/next-action-plus/compare/v1.0.0...v1.0.1) (2025-12-17)
 
 

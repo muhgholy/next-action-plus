@@ -1,6 +1,6 @@
 {
      "name": "next-action-plus",
-     "version": "1.0.1",
+     "version": "1.0.2",
      "description": "Plug-and-play, type-safe server actions with schema validation (schema-agnostic, Zod compatible).",
      "license": "MIT",
      "repository": {
